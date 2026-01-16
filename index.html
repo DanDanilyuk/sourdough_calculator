@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sourdough Calculator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1.1em;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+
+    .main-content {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      width: 100%;
+    }
+
+    .tabs {
+      display: flex;
+      border-radius: 999px;
+      background: #e2e8f0;
+      padding: 4px;
+      margin-bottom: 25px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4a5568;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: #2d3748;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    .tab-btn span {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .calculator-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #34495e;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .hydration-buttons,
+    .starter-hydration-buttons,
+    .dough-hydration-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .flour-buttons,
+    .time-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .hydration-btn,
+    .flour-btn,
+    .time-btn {
+      background: white;
+      border: 2px solid #ddd;
+      padding: 12px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .hydration-btn:hover,
+    .flour-btn:hover,
+    .time-btn:hover {
+      border-color: #667eea;
+      color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .hydration-btn.active,
+    .flour-btn.active,
+    .time-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #667eea;
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .hydration-label,
+    .flour-label,
+    .time-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .hydration-ratio,
+    .time-ratio {
+      display: block;
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 2px;
+      font-weight: 400;
+    }
+
+    .hydration-desc,
+    .flour-desc,
+    .time-desc {
+      display: block;
+      font-size: 11px;
+      opacity: 0.8;
+      margin-top: 3px;
+    }
+
+    .results {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border: 1px solid #e9ecef;
+    }
+
+    .results h3 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-size: 1.1em;
+    }
+
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-label {
+      font-weight: 500;
+      color: #555;
+    }
+
+    .result-value {
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .highlight {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .highlight .result-item {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .highlight .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .highlight .result-label,
+    .highlight .result-value {
+      color: white;
+    }
+
+    .info-text {
+      font-size: 0.9em;
+      color: #7f8c8d;
+      margin-top: 5px;
+    }
+
+    footer {
+      background: #2d3748;
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    footer p {
+      margin: 5px 0;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2em;
+      }
+
+      .hydration-buttons,
+      .starter-hydration-buttons,
+      .dough-hydration-buttons,
+      .flour-buttons,
+      .time-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🍞 Sourdough Calculator</h1>
+    <p class="subtitle">Calculate starter feeding and bread baking ratios with precision</p>
+  </header>
+
+  <main class="main-content">
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-starter" onclick="showTab('starter')">
+        Starter Feeding
+        <span>Ratios & timing</span>
+      </button>
+      <button class="tab-btn" id="tab-bread" onclick="showTab('bread')">
+        Bread Baking
+        <span>Dough formulation</span>
+      </button>
+    </div>
+
+    <div class="calculator-grid">
+      <!-- Starter Feeding Calculator -->
+      <div class="calculator-section" id="section-starter">
+        <h2>Starter Feeding Calculator</h2>
+
+        <div class="input-group">
+          <label>When do you want your starter ready?</label>
+          <div class="time-buttons">
+            <button class="time-btn" onclick="setReadyTime(1, 1, 1)">
+              <span class="time-label">4-6 hours</span>
+              <span class="time-ratio">1:1:1 ratio</span>
+              <span class="time-desc">Fast rise</span>
+            </button>
+            <button class="time-btn" onclick="setReadyTime(1, 2, 2)">
+              <span class="time-label">6-8 hours</span>
+              <span class="time-ratio">1:2:2 ratio</span>
+              <span class="time-desc">Morning bake</span>
+            </button>
+            <button class="time-btn" onclick="setReadyTime(1, 3, 3)">
+              <span class="time-label">8-10 hours</span>
+              <span class="time-ratio">1:3:3 ratio</span>
+              <span class="time-desc">Work day</span>
+            </button>
+            <button class="time-btn" onclick="setReadyTime(1, 4, 4)">
+              <span class="time-label">10-12 hours</span>
+              <span class="time-ratio">1:4:4 ratio</span>
+              <span class="time-desc">Overnight</span>
+            </button>
+            <button class="time-btn" onclick="setReadyTime(1, 5, 5)">
+              <span class="time-label">12-14 hours</span>
+              <span class="time-ratio">1:5:5 ratio</span>
+              <span class="time-desc">Extended</span>
+            </button>
+            <button class="time-btn" onclick="setReadyTime(1, 10, 10)">
+              <span class="time-label">16-24 hours</span>
+              <span class="time-ratio">1:10:10 ratio</span>
+              <span class="time-desc">Slow rise</span>
+            </button>
+          </div>
+          <div class="info-text">Based on 75°F / 24°C ambient temperature</div>
+        </div>
+
+        <div class="input-group">
+          <label for="containerWeightStarter">Container Weight (g):</label>
+          <input type="number" id="containerWeightStarter" value="0" min="0" step="0.1" oninput="calculateStarter()">
+          <div class="info-text">Weight of empty container</div>
+        </div>
+
+        <div class="input-group">
+          <label for="currentStarter">Current Starter + Container (g):</label>
+          <input type="number" id="currentStarter" value="50" min="0" step="1" oninput="calculateStarter()">
+          <div class="info-text">Total weight including container</div>
+        </div>
+
+        <div class="input-group">
+          <label for="desiredStarter">Desired Final Starter Amount (g):</label>
+          <input type="number" id="desiredStarter" value="200" min="1" step="1" oninput="calculateStarter()">
+        </div>
+
+        <div class="input-group">
+          <label>Hydration:</label>
+          <div class="hydration-buttons">
+            <button class="hydration-btn" onclick="setStarterHydration(50)">
+              <span class="hydration-label">50%</span>
+              <span class="hydration-ratio">2:1 flour:water</span>
+              <span class="hydration-desc">Stiff Starter</span>
+            </button>
+            <button class="hydration-btn" onclick="setStarterHydration(75)">
+              <span class="hydration-label">75%</span>
+              <span class="hydration-ratio">4:3 flour:water</span>
+              <span class="hydration-desc">Firm</span>
+            </button>
+            <button class="hydration-btn active" onclick="setStarterHydration(100)">
+              <span class="hydration-label">100%</span>
+              <span class="hydration-ratio">1:1 flour:water</span>
+              <span class="hydration-desc">Standard</span>
+            </button>
+            <button class="hydration-btn" onclick="setStarterHydration(125)">
+              <span class="hydration-label">125%</span>
+              <span class="hydration-ratio">4:5 flour:water</span>
+              <span class="hydration-desc">Liquid</span>
+            </button>
+          </div>
+          <input type="hidden" id="hydration" value="100">
+          <input type="hidden" id="feedingRatioStarter" value="1">
+          <input type="hidden" id="feedingRatioFlour" value="1">
+          <input type="hidden" id="feedingRatioWater" value="1">
+        </div>
+
+        <div class="results">
+          <h3>Add to Your Starter:</h3>
+          <div class="result-item">
+            <span class="result-label">Starter to Use:</span>
+            <span class="result-value" id="starterToUse">50 g</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Flour to Add:</span>
+            <span class="result-value" id="flourToAdd">75 g</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Water to Add:</span>
+            <span class="result-value" id="waterToAdd">75 g</span>
+          </div>
+          <div class="highlight">
+            <div class="result-item">
+              <span class="result-label">Total Weight + Container:</span>
+              <span class="result-value" id="totalWeight">200 g</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bread Baking Calculator -->
+      <div class="calculator-section hidden" id="section-bread">
+        <h2>Bread Baking Calculator</h2>
+
+        <div class="input-group">
+          <label>Flour Type:</label>
+          <div class="flour-buttons">
+            <button class="flour-btn" onclick="setFlourType('ap', 70)">
+              <span class="flour-label">All-Purpose</span>
+              <span class="flour-desc">Recommended: 70%</span>
+            </button>
+            <button class="flour-btn active" onclick="setFlourType('bread', 75)">
+              <span class="flour-label">Bread Flour</span>
+              <span class="flour-desc">Recommended: 75%</span>
+            </button>
+            <button class="flour-btn" onclick="setFlourType('ww', 80)">
+              <span class="flour-label">Whole Wheat</span>
+              <span class="flour-desc">Recommended: 80%</span>
+            </button>
+            <button class="flour-btn" onclick="setFlourType('rye', 90)">
+              <span class="flour-label">Rye</span>
+              <span class="flour-desc">Recommended: 90%</span>
+            </button>
+            <button class="flour-btn" onclick="setFlourType('spelt', 72)">
+              <span class="flour-label">Spelt</span>
+              <span class="flour-desc">Recommended: 72%</span>
+            </button>
+            <button class="flour-btn" onclick="setFlourType('mix', null)">
+              <span class="flour-label">Mixed</span>
+              <span class="flour-desc">Manual adjust</span>
+            </button>
+          </div>
+          <input type="hidden" id="flourType" value="bread">
+        </div>
+
+        <div class="input-group">
+          <label for="containerWeightBread">Starter Container Weight (g):</label>
+          <input type="number" id="containerWeightBread" value="0" min="0" step="0.1" oninput="calculateBread()">
+          <div class="info-text">Weight of jar or container holding starter</div>
+        </div>
+
+        <div class="input-group">
+          <label for="starterAmount">Starter + Container (g):</label>
+          <input type="number" id="starterAmount" value="100" min="1" step="1" oninput="calculateBread()">
+          <div class="info-text">Weighed together on the scale</div>
+        </div>
+
+        <div class="input-group">
+          <label>Starter Hydration:</label>
+          <div class="starter-hydration-buttons">
+            <button class="hydration-btn" onclick="setBreadStarterHydration(50)">
+              <span class="hydration-label">50%</span>
+              <span class="hydration-ratio">2:1 flour:water</span>
+              <span class="hydration-desc">Stiff</span>
+            </button>
+            <button class="hydration-btn" onclick="setBreadStarterHydration(75)">
+              <span class="hydration-label">75%</span>
+              <span class="hydration-ratio">4:3 flour:water</span>
+              <span class="hydration-desc">Firm</span>
+            </button>
+            <button class="hydration-btn active" onclick="setBreadStarterHydration(100)">
+              <span class="hydration-label">100%</span>
+              <span class="hydration-ratio">1:1 flour:water</span>
+              <span class="hydration-desc">Standard</span>
+            </button>
+            <button class="hydration-btn" onclick="setBreadStarterHydration(125)">
+              <span class="hydration-label">125%</span>
+              <span class="hydration-ratio">4:5 flour:water</span>
+              <span class="hydration-desc">Liquid</span>
+            </button>
+          </div>
+          <input type="hidden" id="starterHydration" value="100">
+        </div>
+
+        <div class="input-group">
+          <label for="targetDoughWeight">Target Total Dough Weight (g):</label>
+          <input type="number" id="targetDoughWeight" value="900" min="1" step="1" oninput="calculateBread()">
+          <div class="info-text">Example: 900g for a medium loaf</div>
+        </div>
+
+        <div class="input-group">
+          <label>Target Dough Hydration:</label>
+          <div class="dough-hydration-buttons">
+            <button class="hydration-btn" onclick="setDoughHydration(65)">
+              <span class="hydration-label">65%</span>
+              <span class="hydration-ratio">20:13 flour:water</span>
+              <span class="hydration-desc">Bagels</span>
+            </button>
+            <button class="hydration-btn active" onclick="setDoughHydration(75)">
+              <span class="hydration-label">75%</span>
+              <span class="hydration-ratio">4:3 flour:water</span>
+              <span class="hydration-desc">Standard Loaf</span>
+            </button>
+            <button class="hydration-btn" onclick="setDoughHydration(80)">
+              <span class="hydration-label">80%</span>
+              <span class="hydration-ratio">5:4 flour:water</span>
+              <span class="hydration-desc">Ciabatta</span>
+            </button>
+            <button class="hydration-btn" onclick="setDoughHydration(90)">
+              <span class="hydration-label">90%</span>
+              <span class="hydration-ratio">10:9 flour:water</span>
+              <span class="hydration-desc">Focaccia</span>
+            </button>
+          </div>
+          <input type="hidden" id="doughHydration" value="75">
+        </div>
+
+        <div class="input-group">
+          <label for="saltPercent">Salt (% of flour):</label>
+          <input type="number" id="saltPercent" value="2" min="0" max="10" step="0.1" oninput="calculateBread()">
+        </div>
+
+        <div class="results">
+          <h3>Recipe Ingredients:</h3>
+          <div class="result-item">
+            <span class="result-label">Net Starter:</span>
+            <span class="result-value" id="netStarter">100 g</span>
+          </div>
+          <!-- Removed Total Flour and Total Water display elements here -->
+          <div class="result-item">
+            <span class="result-label">Flour to Add:</span>
+            <span class="result-value" id="additionalFlour">450 g</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Water to Add:</span>
+            <span class="result-value" id="additionalWater">325 g</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Salt:</span>
+            <span class="result-value" id="salt">10 g</span>
+          </div>
+          <div class="highlight">
+            <div class="result-item">
+              <span class="result-label">Total Dough Weight (calc):</span>
+              <span class="result-value" id="totalDough">885 g</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Built for precision sourdough baking | Made by <a href="https://www.dandanilyuk.com" target="_blank">Dan
+        Danilyuk</a></p>
+    <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Open source on <a href="https://github.com/dandanilyuk"
+        target="_blank">GitHub</a></p>
+  </footer>
+
+  <script>
+    function showTab(which) {
+      const starterSection = document.getElementById('section-starter');
+      const breadSection = document.getElementById('section-bread');
+      const tabStarter = document.getElementById('tab-starter');
+      const tabBread = document.getElementById('tab-bread');
+
+      if (which === 'starter') {
+        starterSection.classList.remove('hidden');
+        breadSection.classList.add('hidden');
+        tabStarter.classList.add('active');
+        tabBread.classList.remove('active');
+      } else {
+        starterSection.classList.add('hidden');
+        breadSection.classList.remove('hidden');
+        tabStarter.classList.remove('active');
+        tabBread.classList.add('active');
+      }
+    }
+
+    function setReadyTime(ratioStarter, ratioFlour, ratioWater) {
+      document.getElementById('feedingRatioStarter').value = ratioStarter;
+      document.getElementById('feedingRatioFlour').value = ratioFlour;
+      // We still set this for reference, though calculateStarter now overrides it with hydration math
+      document.getElementById('feedingRatioWater').value = ratioWater;
+
+      const buttons = document.querySelectorAll('.time-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.time-btn').classList.add('active');
+
+      calculateStarter();
+    }
+
+    function setFlourType(type, recommendedHydration) {
+      document.getElementById('flourType').value = type;
+
+      const buttons = document.querySelectorAll('.flour-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.flour-btn').classList.add('active');
+
+      if (recommendedHydration !== null) {
+        setDoughHydration(recommendedHydration);
+      }
+    }
+
+    function setStarterHydration(value) {
+      document.getElementById('hydration').value = value;
+
+      const buttons = document.querySelectorAll('#section-starter .hydration-buttons .hydration-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.querySelector('.hydration-label').textContent === value + '%') {
+          btn.classList.add('active');
+        }
+      });
+
+      calculateStarter();
+    }
+
+    function setBreadStarterHydration(value) {
+      document.getElementById('starterHydration').value = value;
+
+      const buttons = document.querySelectorAll('.starter-hydration-buttons .hydration-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.querySelector('.hydration-label').textContent === value + '%') {
+          btn.classList.add('active');
+        }
+      });
+
+      calculateBread();
+    }
+
+    function setDoughHydration(value) {
+      document.getElementById('doughHydration').value = value;
+
+      const buttons = document.querySelectorAll('.dough-hydration-buttons .hydration-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.querySelector('.hydration-label').textContent === value + '%') {
+          btn.classList.add('active');
+        }
+      });
+
+      calculateBread();
+    }
+
+    function calculateStarter() {
+      const containerWeight = parseFloat(document.getElementById('containerWeightStarter').value) || 0;
+      const desired = parseFloat(document.getElementById('desiredStarter').value) || 0;
+      const hydration = parseFloat(document.getElementById('hydration').value) || 100;
+
+      const ratioStarter = parseFloat(document.getElementById('feedingRatioStarter').value) || 1;
+      const ratioFlour = parseFloat(document.getElementById('feedingRatioFlour').value) || 1;
+
+      // FIX: Calculate water ratio based on flour and hydration, ignoring the "Time" button's default water ratio
+      const ratioWater = ratioFlour * (hydration / 100);
+
+      const totalParts = ratioStarter + ratioFlour + ratioWater;
+
+      const starterToUse = desired * (ratioStarter / totalParts);
+      const flourToAdd = desired * (ratioFlour / totalParts);
+      const waterToAdd = desired * (ratioWater / totalParts);
+
+      document.getElementById('starterToUse').textContent = starterToUse.toFixed(1) + ' g';
+      document.getElementById('flourToAdd').textContent = flourToAdd.toFixed(1) + ' g';
+      document.getElementById('waterToAdd').textContent = waterToAdd.toFixed(1) + ' g';
+      document.getElementById('totalWeight').textContent = (desired + containerWeight).toFixed(1) + ' g';
+    }
+
+    function calculateBread() {
+      const containerWeight = parseFloat(document.getElementById('containerWeightBread').value) || 0;
+      const starterTotal = parseFloat(document.getElementById('starterAmount').value) || 0;
+      const starterHydration = parseFloat(document.getElementById('starterHydration').value) || 100;
+      const targetDoughWeight = parseFloat(document.getElementById('targetDoughWeight').value) || 0;
+      const doughHydration = parseFloat(document.getElementById('doughHydration').value) || 75;
+      const saltPercent = parseFloat(document.getElementById('saltPercent').value) || 2;
+
+      const netStarter = starterTotal - containerWeight;
+
+      // Flour and water in starter
+      const flourInStarter = netStarter / (1 + starterHydration / 100);
+      const waterInStarter = flourInStarter * (starterHydration / 100);
+
+      // Let F = total flour, W = total water, S = salt
+      // W = F * h, S = F * s
+      // Total dough = F + W + S = F * (1 + h + s) = targetDoughWeight
+      const h = doughHydration / 100;
+      const s = saltPercent / 100;
+      const totalFlour = targetDoughWeight / (1 + h + s);
+      const totalWater = totalFlour * h;
+      const salt = totalFlour * s;
+
+      const additionalFlour = totalFlour - flourInStarter;
+      const additionalWater = totalWater - waterInStarter;
+
+      const totalDoughCalc = totalFlour + totalWater + salt;
+
+      document.getElementById('netStarter').textContent = netStarter.toFixed(1) + ' g';
+      // Removed lines for totalFlourDisplay and totalWaterDisplay as requested previously
+      document.getElementById('additionalFlour').textContent = additionalFlour.toFixed(1) + ' g';
+      document.getElementById('additionalWater').textContent = additionalWater.toFixed(1) + ' g';
+      document.getElementById('salt').textContent = salt.toFixed(1) + ' g';
+      document.getElementById('totalDough').textContent = totalDoughCalc.toFixed(1) + ' g';
+    }
+
+    // Initialize
+    calculateStarter();
+    calculateBread();
+  </script>
+
+</body>
+
+</html>
