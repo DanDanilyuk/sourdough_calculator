@@ -132,12 +132,20 @@
 
     .hydration-buttons,
     .starter-hydration-buttons,
-    .dough-hydration-buttons {
+    .dough-hydration-buttons,
+    .weight-buttons,
+    .starter-pct-buttons {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       margin-top: 10px;
     }
+
+    .starter-pct-buttons {
+      grid-template-columns: repeat(3, 1fr);
+      /* 3 columns for starter percentage */
+    }
+
 
     .flour-buttons,
     .time-buttons {
@@ -149,7 +157,9 @@
 
     .hydration-btn,
     .flour-btn,
-    .time-btn {
+    .time-btn,
+    .weight-btn,
+    .starter-pct-btn {
       background: white;
       border: 2px solid #ddd;
       padding: 12px 16px;
@@ -164,7 +174,9 @@
 
     .hydration-btn:hover,
     .flour-btn:hover,
-    .time-btn:hover {
+    .time-btn:hover,
+    .weight-btn:hover,
+    .starter-pct-btn:hover {
       border-color: #667eea;
       color: #667eea;
       transform: translateY(-2px);
@@ -173,7 +185,9 @@
 
     .hydration-btn.active,
     .flour-btn.active,
-    .time-btn.active {
+    .time-btn.active,
+    .weight-btn.active,
+    .starter-pct-btn.active {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border-color: #667eea;
       color: white;
@@ -297,7 +311,9 @@
       .starter-hydration-buttons,
       .dough-hydration-buttons,
       .flour-buttons,
-      .time-buttons {
+      .time-buttons,
+      .weight-buttons,
+      .starter-pct-buttons {
         grid-template-columns: 1fr;
       }
     }
@@ -334,7 +350,7 @@
         <div class="input-group">
           <label>When do you want your starter ready?</label>
           <div class="time-buttons">
-            <button class="time-btn" onclick="setReadyTime(1, 1, 1)">
+            <button class="time-btn active" onclick="setReadyTime(1, 1, 1)">
               <span class="time-label">4-6 hours</span>
               <span class="time-ratio">1:1:1 ratio</span>
               <span class="time-desc">Fast rise</span>
@@ -438,6 +454,56 @@
         <h2>Bread Baking Calculator</h2>
 
         <div class="input-group">
+          <label>Target Total Dough Weight:</label>
+          <div class="weight-buttons">
+            <button class="weight-btn" onclick="setDoughWeight(650, this)">
+              <span class="hydration-label">Small</span>
+              <span class="hydration-desc">650g</span>
+            </button>
+            <button class="weight-btn active" onclick="setDoughWeight(900, this)">
+              <span class="hydration-label">Standard</span>
+              <span class="hydration-desc">900g</span>
+            </button>
+            <button class="weight-btn" onclick="setDoughWeight(1800, this)">
+              <span class="hydration-label">Double</span>
+              <span class="hydration-desc">1800g</span>
+            </button>
+            <button class="weight-btn" onclick="toggleCustomWeight(this)">
+              <span class="hydration-label">Custom</span>
+              <span class="hydration-desc">Manual Input</span>
+            </button>
+          </div>
+
+          <!-- Custom Input Field (Hidden by default) -->
+          <div id="customWeightContainer" class="hidden" style="margin-top: 10px;">
+            <label for="targetDoughWeight" style="font-size: 0.9em;">Enter Weight (g):</label>
+            <input type="number" id="targetDoughWeight" value="900" min="1" step="1" oninput="calculateBread()">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Starter Amount & Rise Time:</label>
+          <div class="starter-pct-buttons">
+            <button class="starter-pct-btn" onclick="setStarterPercentage(10)">
+              <span class="hydration-label">Slow</span>
+              <span class="hydration-ratio">10%</span>
+              <span class="hydration-desc">Overnight</span>
+            </button>
+            <button class="starter-pct-btn active" onclick="setStarterPercentage(20)">
+              <span class="hydration-label">Standard</span>
+              <span class="hydration-ratio">20%</span>
+              <span class="hydration-desc">4-6 Hours</span>
+            </button>
+            <button class="starter-pct-btn" onclick="setStarterPercentage(30)">
+              <span class="hydration-label">Fast</span>
+              <span class="hydration-ratio">30%</span>
+              <span class="hydration-desc">Winter/Fast</span>
+            </button>
+          </div>
+          <input type="hidden" id="starterPercentage" value="20">
+        </div>
+
+        <div class="input-group">
           <label>Flour Type:</label>
           <div class="flour-buttons">
             <button class="flour-btn" onclick="setFlourType('ap', 70)">
@@ -469,18 +535,6 @@
         </div>
 
         <div class="input-group">
-          <label for="containerWeightBread">Starter Container Weight (g):</label>
-          <input type="number" id="containerWeightBread" value="0" min="0" step="0.1" oninput="calculateBread()">
-          <div class="info-text">Weight of jar or container holding starter</div>
-        </div>
-
-        <div class="input-group">
-          <label for="starterAmount">Starter + Container (g):</label>
-          <input type="number" id="starterAmount" value="100" min="1" step="1" oninput="calculateBread()">
-          <div class="info-text">Weighed together on the scale</div>
-        </div>
-
-        <div class="input-group">
           <label>Starter Hydration:</label>
           <div class="starter-hydration-buttons">
             <button class="hydration-btn" onclick="setBreadStarterHydration(50)">
@@ -505,12 +559,6 @@
             </button>
           </div>
           <input type="hidden" id="starterHydration" value="100">
-        </div>
-
-        <div class="input-group">
-          <label for="targetDoughWeight">Target Total Dough Weight (g):</label>
-          <input type="number" id="targetDoughWeight" value="900" min="1" step="1" oninput="calculateBread()">
-          <div class="info-text">Example: 900g for a medium loaf</div>
         </div>
 
         <div class="input-group">
@@ -551,7 +599,6 @@
             <span class="result-label">Net Starter:</span>
             <span class="result-value" id="netStarter">100 g</span>
           </div>
-          <!-- Removed Total Flour and Total Water display elements here -->
           <div class="result-item">
             <span class="result-label">Flour to Add:</span>
             <span class="result-value" id="additionalFlour">450 g</span>
@@ -669,27 +716,68 @@
       calculateBread();
     }
 
+    function setDoughWeight(weight, btn) {
+      // Update buttons
+      document.querySelectorAll('.weight-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Hide custom input
+      document.getElementById('customWeightContainer').classList.add('hidden');
+
+      // Set value and calculate
+      document.getElementById('targetDoughWeight').value = weight;
+      calculateBread();
+    }
+
+    function toggleCustomWeight(btn) {
+      // Update buttons
+      document.querySelectorAll('.weight-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Show custom input
+      const container = document.getElementById('customWeightContainer');
+      container.classList.remove('hidden');
+
+      // Focus the input
+      const input = document.getElementById('targetDoughWeight');
+      input.focus();
+      input.select();
+    }
+
+    function setStarterPercentage(percent) {
+      document.getElementById('starterPercentage').value = percent;
+
+      const buttons = document.querySelectorAll('.starter-pct-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.querySelector('.hydration-ratio').textContent === percent + '%') {
+          btn.classList.add('active');
+        }
+      });
+
+      calculateBread();
+    }
+
     function calculateStarter() {
       const containerWeight = parseFloat(document.getElementById('containerWeightStarter').value) || 0;
+      // Net starter is Current Total - Container.
       const currentStarterTotal = parseFloat(document.getElementById('currentStarter').value) || 0;
       const hydration = parseFloat(document.getElementById('hydration').value) || 100;
 
       const ratioStarter = parseFloat(document.getElementById('feedingRatioStarter').value) || 1;
       const ratioFlour = parseFloat(document.getElementById('feedingRatioFlour').value) || 1;
 
-      // Calculate net starter (Current Total - Empty Container)
-      const netStarter = Math.max(0, currentStarterTotal - containerWeight);
-
       // FIX: Calculate water ratio based on flour and hydration
       const ratioWater = ratioFlour * (hydration / 100);
 
-      // Calculate amounts based on the net starter available
-      // Formula: Amount = Starter * (TargetRatio / StarterRatio)
+      // Determine how much starter we are actually feeding
+      const netStarter = Math.max(0, currentStarterTotal - containerWeight);
+
+      // Feeding based on what we HAVE, not what we WANT
       const starterToUse = netStarter;
       const flourToAdd = starterToUse * (ratioFlour / ratioStarter);
       const waterToAdd = starterToUse * (ratioWater / ratioStarter);
 
-      // Total = Starter + Flour + Water + Container
       const totalWeight = starterToUse + flourToAdd + waterToAdd + containerWeight;
 
       document.getElementById('starterToUse').textContent = starterToUse.toFixed(1) + ' g';
@@ -699,39 +787,55 @@
     }
 
     function calculateBread() {
-      const containerWeight = parseFloat(document.getElementById('containerWeightBread').value) || 0;
-      const starterTotal = parseFloat(document.getElementById('starterAmount').value) || 0;
-      const starterHydration = parseFloat(document.getElementById('starterHydration').value) || 100;
       const targetDoughWeight = parseFloat(document.getElementById('targetDoughWeight').value) || 0;
+      const starterPercentage = parseFloat(document.getElementById('starterPercentage').value) || 20;
+      const starterHydration = parseFloat(document.getElementById('starterHydration').value) || 100;
       const doughHydration = parseFloat(document.getElementById('doughHydration').value) || 75;
       const saltPercent = parseFloat(document.getElementById('saltPercent').value) || 2;
 
-      const netStarter = starterTotal - containerWeight;
+      // Math for Baker's Percentage with a fixed dough weight
+      // Total % = 100% (flour) + water% + starter% + salt%
+      // But Wait: "starter%" is usually % of total flour.
+      // Net Formula:
+      // Total Flour (TF) comes from two places: Raw flour + Flour in starter.
+      // We want the SUM of all ingredients to equal targetDoughWeight.
 
-      // Flour and water in starter
-      const flourInStarter = netStarter / (1 + starterHydration / 100);
-      const waterInStarter = flourInStarter * (starterHydration / 100);
+      // Let Final Flour = F_total (including starter flour)
+      // Total Water = F_total * hydration
+      // Salt = F_total * saltPercent
+      // Total Dough = F_total + Total Water + Salt
+      // Total Dough = F_total * (1 + hydration + saltPercent)
 
-      // Let F = total flour, W = total water, S = salt
-      // W = F * h, S = F * s
-      // Total dough = F + W + S = F * (1 + h + s) = targetDoughWeight
-      const h = doughHydration / 100;
-      const s = saltPercent / 100;
-      const totalFlour = targetDoughWeight / (1 + h + s);
-      const totalWater = totalFlour * h;
-      const salt = totalFlour * s;
+      // So, F_total = TargetDough / (1 + hydration/100 + salt/100)
+      const totalFlour = targetDoughWeight / (1 + (doughHydration / 100) + (saltPercent / 100));
 
-      const additionalFlour = totalFlour - flourInStarter;
-      const additionalWater = totalWater - waterInStarter;
+      // Now we determine how much of that F_total comes from the starter.
+      // Standard Baker's math: Starter amount is X% of Total Flour.
+      // Starter Weight = TotalFlour * (starterPercentage / 100)
+      const starterWeight = totalFlour * (starterPercentage / 100);
 
-      const totalDoughCalc = totalFlour + totalWater + salt;
+      // Breakdown starter into flour/water
+      const flourInStarter = starterWeight / (1 + starterHydration / 100);
+      const waterInStarter = starterWeight - flourInStarter;
 
-      document.getElementById('netStarter').textContent = netStarter.toFixed(1) + ' g';
-      // Removed lines for totalFlourDisplay and totalWaterDisplay as requested previously
-      document.getElementById('additionalFlour').textContent = additionalFlour.toFixed(1) + ' g';
-      document.getElementById('additionalWater').textContent = additionalWater.toFixed(1) + ' g';
+      // Calculate remaining ingredients to add
+      const flourToAdd = totalFlour - flourInStarter;
+
+      // Total water required = TotalFlour * doughHydration
+      const totalWater = totalFlour * (doughHydration / 100);
+      const waterToAdd = totalWater - waterInStarter;
+
+      const salt = totalFlour * (saltPercent / 100);
+
+      // Display
+      document.getElementById('netStarter').textContent = starterWeight.toFixed(1) + ' g';
+      document.getElementById('additionalFlour').textContent = flourToAdd.toFixed(1) + ' g';
+      document.getElementById('additionalWater').textContent = waterToAdd.toFixed(1) + ' g';
       document.getElementById('salt').textContent = salt.toFixed(1) + ' g';
-      document.getElementById('totalDough').textContent = totalDoughCalc.toFixed(1) + ' g';
+
+      // Check calc
+      const checkTotal = starterWeight + flourToAdd + waterToAdd + salt;
+      document.getElementById('totalDough').textContent = checkTotal.toFixed(1) + ' g';
     }
 
     // Initialize
