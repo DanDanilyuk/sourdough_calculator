@@ -381,11 +381,6 @@
         </div>
 
         <div class="input-group">
-          <label for="desiredStarter">Desired Final Starter Amount (g):</label>
-          <input type="number" id="desiredStarter" value="200" min="1" step="1" oninput="calculateStarter()">
-        </div>
-
-        <div class="input-group">
           <label>Hydration:</label>
           <div class="hydration-buttons">
             <button class="hydration-btn" onclick="setStarterHydration(50)">
@@ -676,25 +671,31 @@
 
     function calculateStarter() {
       const containerWeight = parseFloat(document.getElementById('containerWeightStarter').value) || 0;
-      const desired = parseFloat(document.getElementById('desiredStarter').value) || 0;
+      const currentStarterTotal = parseFloat(document.getElementById('currentStarter').value) || 0;
       const hydration = parseFloat(document.getElementById('hydration').value) || 100;
 
       const ratioStarter = parseFloat(document.getElementById('feedingRatioStarter').value) || 1;
       const ratioFlour = parseFloat(document.getElementById('feedingRatioFlour').value) || 1;
 
-      // FIX: Calculate water ratio based on flour and hydration, ignoring the "Time" button's default water ratio
+      // Calculate net starter (Current Total - Empty Container)
+      const netStarter = Math.max(0, currentStarterTotal - containerWeight);
+
+      // FIX: Calculate water ratio based on flour and hydration
       const ratioWater = ratioFlour * (hydration / 100);
 
-      const totalParts = ratioStarter + ratioFlour + ratioWater;
+      // Calculate amounts based on the net starter available
+      // Formula: Amount = Starter * (TargetRatio / StarterRatio)
+      const starterToUse = netStarter;
+      const flourToAdd = starterToUse * (ratioFlour / ratioStarter);
+      const waterToAdd = starterToUse * (ratioWater / ratioStarter);
 
-      const starterToUse = desired * (ratioStarter / totalParts);
-      const flourToAdd = desired * (ratioFlour / totalParts);
-      const waterToAdd = desired * (ratioWater / totalParts);
+      // Total = Starter + Flour + Water + Container
+      const totalWeight = starterToUse + flourToAdd + waterToAdd + containerWeight;
 
       document.getElementById('starterToUse').textContent = starterToUse.toFixed(1) + ' g';
       document.getElementById('flourToAdd').textContent = flourToAdd.toFixed(1) + ' g';
       document.getElementById('waterToAdd').textContent = waterToAdd.toFixed(1) + ' g';
-      document.getElementById('totalWeight').textContent = (desired + containerWeight).toFixed(1) + ' g';
+      document.getElementById('totalWeight').textContent = totalWeight.toFixed(1) + ' g';
     }
 
     function calculateBread() {
