@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sourdough Calculator</title>
   <style>
+    :root {
+      color-scheme: light dark;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -172,15 +176,18 @@
       text-align: center;
     }
 
-    .hydration-btn:hover,
-    .flour-btn:hover,
-    .time-btn:hover,
-    .weight-btn:hover,
-    .starter-pct-btn:hover {
-      border-color: #667eea;
-      color: #667eea;
-      transform: translateY(-2px);
-      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    @media (hover: hover) {
+
+      .hydration-btn:hover,
+      .flour-btn:hover,
+      .time-btn:hover,
+      .weight-btn:hover,
+      .starter-pct-btn:hover {
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+      }
     }
 
     .hydration-btn.active,
@@ -320,6 +327,106 @@
 
     .hidden {
       display: none;
+    }
+
+    /* Auto dark mode */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #111827;
+        color: #f3f4f6;
+      }
+
+      .calculator-section {
+        background: #1f2937;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+      }
+
+      h2 {
+        color: #f3f4f6;
+      }
+
+      label,
+      .result-label,
+      .result-value {
+        color: #e5e7eb;
+      }
+
+      .info-text,
+      .hydration-ratio,
+      .hydration-desc,
+      .flour-desc,
+      .time-desc,
+      .time-ratio {
+        color: #9ca3af;
+      }
+
+      .results {
+        background: #374151;
+        border-color: #4b5563;
+      }
+
+      .results h3 {
+        color: #f3f4f6;
+      }
+
+      .result-item {
+        border-bottom-color: #4b5563;
+      }
+
+      input[type="number"] {
+        background: #111827;
+        color: white;
+        border-color: #4b5563;
+      }
+
+      .tabs {
+        background: #374151;
+      }
+
+      .tab-btn {
+        color: #9ca3af;
+      }
+
+      .tab-btn.active {
+        background: #1f2937;
+        color: white;
+      }
+
+      .hydration-btn,
+      .flour-btn,
+      .time-btn,
+      .weight-btn,
+      .starter-pct-btn {
+        background: #374151;
+        border-color: #4b5563;
+        color: #e5e7eb;
+      }
+
+      /* Dark mode hover only on hover-capable devices (prevents sticky hover on mobile) */
+      @media (hover: hover) {
+
+        .hydration-btn:hover,
+        .flour-btn:hover,
+        .time-btn:hover,
+        .weight-btn:hover,
+        .starter-pct-btn:hover {
+          border-color: #667eea;
+          color: #a3bffa;
+          background: #1f2937;
+        }
+      }
+
+      /* Ensure active state always wins in dark mode */
+      .hydration-btn.active,
+      .flour-btn.active,
+      .time-btn.active,
+      .weight-btn.active,
+      .starter-pct-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
     }
   </style>
 </head>
