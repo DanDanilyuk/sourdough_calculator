@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calculate sourdough starter feeding ratios and bread dough formulations with precision. Supports multiple hydration levels, flour types, and timing options.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>🍞</text></svg>">
   <title>Sourdough Calculator</title>
   <style>
     :root {
@@ -438,12 +440,12 @@
   </header>
 
   <main class="main-content">
-    <div class="tabs">
-      <button class="tab-btn active" id="tab-starter" onclick="showTab('starter')">
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" id="tab-starter" onclick="showTab('starter')" role="tab" aria-selected="true" aria-controls="section-starter">
         Starter Feeding
         <span>Ratios & timing</span>
       </button>
-      <button class="tab-btn" id="tab-bread" onclick="showTab('bread')">
+      <button class="tab-btn" id="tab-bread" onclick="showTab('bread')" role="tab" aria-selected="false" aria-controls="section-bread">
         Bread Baking
         <span>Dough formulation</span>
       </button>
@@ -451,7 +453,7 @@
 
     <div class="calculator-grid">
       <!-- Starter Feeding Calculator -->
-      <div class="calculator-section" id="section-starter">
+      <div class="calculator-section" id="section-starter" role="tabpanel">
         <h2>Starter Feeding Calculator</h2>
 
         <div class="input-group">
@@ -493,14 +495,14 @@
 
         <div class="input-group">
           <label for="containerWeightStarter">Container Weight (g):</label>
-          <input type="number" id="containerWeightStarter" value="0" min="0" step="0.1" oninput="calculateStarter()">
-          <div class="info-text">Weight of empty container</div>
+          <input type="number" id="containerWeightStarter" value="0" min="0" step="0.1" oninput="calculateStarter()" aria-describedby="containerWeightHint">
+          <div class="info-text" id="containerWeightHint">Weight of empty container</div>
         </div>
 
         <div class="input-group">
           <label for="currentStarter">Current Starter + Container (g):</label>
-          <input type="number" id="currentStarter" value="50" min="0" step="1" oninput="calculateStarter()">
-          <div class="info-text">Total weight including container</div>
+          <input type="number" id="currentStarter" value="50" min="0" step="1" oninput="calculateStarter()" aria-describedby="currentStarterHint">
+          <div class="info-text" id="currentStarterHint">Total weight including container</div>
         </div>
 
         <div class="input-group">
@@ -557,25 +559,25 @@
       </div>
 
       <!-- Bread Baking Calculator -->
-      <div class="calculator-section hidden" id="section-bread">
+      <div class="calculator-section hidden" id="section-bread" role="tabpanel">
         <h2>Bread Baking Calculator</h2>
 
         <div class="input-group">
           <label>Target Total Dough Weight:</label>
           <div class="weight-buttons">
-            <button class="weight-btn" onclick="setDoughWeight(650, this)">
+            <button class="weight-btn" onclick="setDoughWeight(650)">
               <span class="hydration-label">Small</span>
               <span class="hydration-desc">650g</span>
             </button>
-            <button class="weight-btn active" onclick="setDoughWeight(900, this)">
+            <button class="weight-btn active" onclick="setDoughWeight(900)">
               <span class="hydration-label">Standard</span>
               <span class="hydration-desc">900g</span>
             </button>
-            <button class="weight-btn" onclick="setDoughWeight(1800, this)">
+            <button class="weight-btn" onclick="setDoughWeight(1800)">
               <span class="hydration-label">Double</span>
               <span class="hydration-desc">1800g</span>
             </button>
-            <button class="weight-btn" onclick="toggleCustomWeight(this)">
+            <button class="weight-btn" onclick="toggleCustomWeight()">
               <span class="hydration-label">Custom</span>
               <span class="hydration-desc">Manual Input</span>
             </button>
@@ -748,11 +750,15 @@
         breadSection.classList.add('hidden');
         tabStarter.classList.add('active');
         tabBread.classList.remove('active');
+        tabStarter.setAttribute('aria-selected', 'true');
+        tabBread.setAttribute('aria-selected', 'false');
       } else {
         starterSection.classList.add('hidden');
         breadSection.classList.remove('hidden');
         tabStarter.classList.remove('active');
         tabBread.classList.add('active');
+        tabStarter.setAttribute('aria-selected', 'false');
+        tabBread.setAttribute('aria-selected', 'true');
       }
     }
 
@@ -762,9 +768,14 @@
       // We still set this for reference, though calculateStarter now overrides it with hydration math
       document.getElementById('feedingRatioWater').value = ratioWater;
 
+      const ratioText = ratioStarter + ':' + ratioFlour + ':' + ratioWater + ' ratio';
       const buttons = document.querySelectorAll('.time-btn');
-      buttons.forEach(btn => btn.classList.remove('active'));
-      event.target.closest('.time-btn').classList.add('active');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.querySelector('.time-ratio').textContent === ratioText) {
+          btn.classList.add('active');
+        }
+      });
 
       calculateStarter();
     }
@@ -772,9 +783,14 @@
     function setFlourType(type, recommendedHydration) {
       document.getElementById('flourType').value = type;
 
+      const labels = { ap: 'All-Purpose', bread: 'Bread Flour', ww: 'Whole Wheat', rye: 'Rye', spelt: 'Spelt', mix: 'Mixed' };
       const buttons = document.querySelectorAll('.flour-btn');
-      buttons.forEach(btn => btn.classList.remove('active'));
-      event.target.closest('.flour-btn').classList.add('active');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.querySelector('.flour-label').textContent === labels[type]) {
+          btn.classList.add('active');
+        }
+      });
 
       if (recommendedHydration !== null) {
         setDoughHydration(recommendedHydration);
@@ -823,10 +839,15 @@
       calculateBread();
     }
 
-    function setDoughWeight(weight, btn) {
+    function setDoughWeight(weight) {
       // Update buttons
-      document.querySelectorAll('.weight-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      const buttons = document.querySelectorAll('.weight-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.querySelector('.hydration-desc').textContent === weight + 'g') {
+          btn.classList.add('active');
+        }
+      });
 
       // Hide custom input
       document.getElementById('customWeightContainer').classList.add('hidden');
@@ -836,10 +857,15 @@
       calculateBread();
     }
 
-    function toggleCustomWeight(btn) {
+    function toggleCustomWeight() {
       // Update buttons
-      document.querySelectorAll('.weight-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      const buttons = document.querySelectorAll('.weight-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.querySelector('.hydration-label').textContent === 'Custom') {
+          btn.classList.add('active');
+        }
+      });
 
       // Show custom input
       const container = document.getElementById('customWeightContainer');
@@ -887,10 +913,10 @@
 
       const totalWeight = starterToUse + flourToAdd + waterToAdd + containerWeight;
 
-      document.getElementById('starterToUse').textContent = starterToUse.toFixed(1) + ' g';
-      document.getElementById('flourToAdd').textContent = flourToAdd.toFixed(1) + ' g';
-      document.getElementById('waterToAdd').textContent = waterToAdd.toFixed(1) + ' g';
-      document.getElementById('totalWeight').textContent = totalWeight.toFixed(1) + ' g';
+      document.getElementById('starterToUse').textContent = Math.max(0, starterToUse).toFixed(1) + ' g';
+      document.getElementById('flourToAdd').textContent = Math.max(0, flourToAdd).toFixed(1) + ' g';
+      document.getElementById('waterToAdd').textContent = Math.max(0, waterToAdd).toFixed(1) + ' g';
+      document.getElementById('totalWeight').textContent = Math.max(0, totalWeight).toFixed(1) + ' g';
     }
 
     function calculateBread() {
@@ -935,14 +961,14 @@
       const salt = totalFlour * (saltPercent / 100);
 
       // Display
-      document.getElementById('netStarter').textContent = starterWeight.toFixed(1) + ' g';
-      document.getElementById('additionalFlour').textContent = flourToAdd.toFixed(1) + ' g';
-      document.getElementById('additionalWater').textContent = waterToAdd.toFixed(1) + ' g';
-      document.getElementById('salt').textContent = salt.toFixed(1) + ' g';
+      document.getElementById('netStarter').textContent = Math.max(0, starterWeight).toFixed(1) + ' g';
+      document.getElementById('additionalFlour').textContent = Math.max(0, flourToAdd).toFixed(1) + ' g';
+      document.getElementById('additionalWater').textContent = Math.max(0, waterToAdd).toFixed(1) + ' g';
+      document.getElementById('salt').textContent = Math.max(0, salt).toFixed(1) + ' g';
 
       // Check calc
       const checkTotal = starterWeight + flourToAdd + waterToAdd + salt;
-      document.getElementById('totalDough').textContent = checkTotal.toFixed(1) + ' g';
+      document.getElementById('totalDough').textContent = Math.max(0, checkTotal).toFixed(1) + ' g';
     }
 
     // Initialize
